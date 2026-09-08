@@ -1,63 +1,101 @@
-#!/bin/bash#!/bin/bash
+#!/bin/bash
 
-# Скрипт запуска Docker Compose проекта
 set -e
 
-echo "🚀 Запускаю проект..."
+# Определение директории скрипта и загрузка конфигурации
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/config.sh"
 
-# Проверка наличия docker-compose.yml
-if [ ! -f "docker-compose.yml" ] && [ ! -f "docker-compose.yaml" ]; then
-    echo "❌ Ошибка: docker-compose.yml не найден!"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "❌ Ошибка: config.sh не найден!"
     exit 1
 fi
 
-# Параметры запуска
-DETACHED="-d"
-BUILD=""
+source "$CONFIG_FILE"
 
-# Обработка аргументов
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --foreground)
-            DETACHED=""
-            shift
-            ;;
-        --build)
-            BUILD="--build"
-            shift
-            ;;
-        --service)
-            SERVICE="$2"
-            shift 2
-            ;;
-        *)
-            echo "Неизвестный параметр: $1"
-            echo "Доступные параметры:"
-            echo "  --foreground  - запуск в foreground режиме"
-            echo "  --build      - пересобрать перед запуском"
-            echo "  --service    - запустить конкретный сервис"
-            exit 1
-            ;;
-    esac
-done
+# Начало запуска
+echo "INFO" "🚀 Запускаю проект..."
+echo "INFO" "📁 Путь к проекту: $PROJECT_PATH"
+echo "INFO" "🔧 Режим запуска: $RUN_MODE"
+echo "========================================"
 
-# Запуск
-if [ -n "$SERVICE" ]; then
-    echo "🎯 Запускаю сервис: ${SERVICE}"
-    docker-compose up ${DETACHED} ${BUILD} ${SERVICE}
+# Определение compose файла
+COMPOSE_FILE=$(find_compose_file "$PROJECT_PATH")
+
+if [ -z "$COMPOSE_FILE" ]; then
+    echo "ERROR" "Compose файл не найден в $PROJECT_PATH"
+    exit 1
+fi
+
+echo "INFO" "📄 Используется файл: $COMPOSE_FILE"
+
+# Переход в директорию проекта
+cd "$PROJECT_PATH"
+
+# Формирование команды запуска
+RUN_CMD="docker compose -f $COMPOSE_FILE up"
+
+# Добавление параметров
+if [ "$RUN_MODE" = "detached" ]; then
+    RUN_CMD="$RUN_CMD -d"
+    echo "INFO" "🖥️  Запуск в фоновом режиме..."
 else
-    echo "🎯 Запускаю все сервисы"
-    docker-compose up ${DETACHED} ${BUILD}
+    echo "INFO" "🖥️  Запуск в foreground режиме..."
+fi
+
+if [ "$AUTO_BUILD" = true ]; then
+    RUN_CMD="$RUN_CMD --build"
+    echo "INFO" "🔨 С автоматической сборкой..."
+fi
+
+if [ "$FORCE_RECREATE" = true ]; then
+    RUN_CMD="$RUN_CMD --force-recreate"
+    echo "INFO" "🔄 С принудительным пересозданием..."
+fi
+
+if [ "$REMOVE_ORPHANS" = true ]; then
+    RUN_CMD="$RUN_CMD --remove-orphans"
+fi
+
+# Добавление масштабирования
+if [ -n "$SCALE_SERVICES" ]; then
+    for scale in $SCALE_SERVICES; do
+        RUN_CMD="$RUN_CMD --scale $scale"
+    done
+    echo "INFO" "📊 Масштабирование: $SCALE_SERVICES"
+fi
+
+# Добавление конкретного сервиса
+if [ -n "$START_SERVICE" ]; then
+    RUN_CMD="$RUN_CMD $START_SERVICE"
+    echo "INFO" "🎯 Запускаю сервис: $START_SERVICE"
+else
+    echo "INFO" "🎯 Запускаю все сервисы"
+fi
+
+# Выполнение запуска
+echo "DEBUG" "Выполняю: $RUN_CMD"
+if eval $RUN_CMD; then
+    echo "INFO" "✅ Проект запущен!"
+else
+    echo "ERROR" "Ошибка при запуске проекта"
+    exit 1
 fi
 
 # Проверка статуса
-echo "📊 Статус контейнеров:"
-docker-compose ps
+echo ""
+echo "INFO" "📊 Статус контейнеров:"
+docker compose -f "$COMPOSE_FILE" ps
 
-# Показать логи если в foreground
-if [ -z "$DETACHED" ]; then
-    echo "📋 Логи:"
-    docker-compose logs -f
+# Показать логи если foreground
+if [ "$RUN_MODE" = "foreground" ]; then
+    echo ""
+    echo "INFO" "📋 Логи:"
+    docker compose -f "$COMPOSE_FILE" logs -f
 fi
 
-echo "✅ Проект запущен!"
+# Отправка уведомления
+send_notification "Docker Run Success" "Проект $PROJECT_PATH запущен"
+
+echo ""
+echo "INFO" "✅ Проект успешно работает!"

@@ -1,23 +1,44 @@
 #!/bin/bash
 
-# Скрипт сборки Docker Compose проекта
 set -e
 
-echo "🔨 Начинаю сборку проекта..."
+echo "Start Build"
 
-# Проверка наличия docker-compose.yml
-if [ ! -f "docker-compose.yml" ] && [ ! -f "docker-compose.yaml" ]; then
-    echo "❌ Ошибка: docker-compose.yml не найден!"
+# Добавить Docker в PATH если нужно
+export PATH="/usr/local/bin:$PATH"
+
+# Проверить Docker
+if ! command -v docker &> /dev/null; then
+    echo "ERROR: Docker is not installed or not in PATH!"
+    echo "Please install Docker Desktop from https://www.docker.com/products/docker-desktop/"
     exit 1
 fi
 
-# Сборка с кешем или без
-if [ "$1" == "--no-cache" ]; then
-    echo "📦 Сборка без кеша..."
-    docker-compose build --no-cache
-else
-    echo "📦 Сборка с кешем..."
-    docker-compose build
+echo "Docker version: $(docker --version)"
+
+DIR="/Users/glebpodavalov/Documents/GitHub/Eye_of_reservoir"
+
+if [ ! -d "$DIR" ]; then
+    echo "ERROR: Directory $DIR does not exist!"
+    exit 1
 fi
 
-echo "✅ Сборка завершена успешно!"
+echo "Changing to directory: $DIR"
+cd "$DIR" || exit 1
+
+echo "Current directory: $(pwd)"
+
+if [ ! -f "docker-compose.yml" ] && [ ! -f "compose.yaml" ]; then
+    echo "ERROR: No docker-compose.yml or compose.yaml found!"
+    exit 1
+fi
+
+echo "Starting Docker Compose..."
+
+# Проверить наличие docker compose
+if docker compose version &> /dev/null; then
+    docker compose up --build
+else
+    echo "ERROR: Docker Compose is not available!"
+    exit 1
+fi
