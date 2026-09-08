@@ -1,0 +1,73 @@
+services:
+  redis:
+    image: redis:7
+    #platform: linux/arm64          # Явно указываем платформу ARM
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "1"
+    volumes:
+      - static_volume:/app/staticfiles  
+      - media_volume:/app/media
+    depends_on:
+      redis:
+        condition: service_started
+    expose:
+      - "8000"
+    ports:
+      # host 8001 -> container 8000 (host 8000 занят другим контейнером)
+      - "8001:8000"
+
+  celery:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_started
+    command: celery -A eye_of_the_reservoir worker -l info
+
+  celery-beat:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_started
+    command: celery -A eye_of_the_reservoir beat -l info
+
+  frontend:
+    build:
+      context: ./frontend
+      network: host
+    env_file: .env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules       # анонимный volume для сохранения node_modules из образа
+    expose:
+      - "5173"
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+
+  nginx:
+    image: nginx:alpine
+    #platform: linux/arm64          # Явно указываем платформу ARM
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  static_volume:
+  media_volume:

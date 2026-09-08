@@ -26,6 +26,11 @@ fi
 echo "Changing to directory: $DIR"
 cd "$DIR" || exit 1
 
+cd "$DIR/frontend"
+npm install
+
+cd "$DIR"
+
 echo "Current directory: $(pwd)"
 
 if [ ! -f "docker-compose.yml" ] && [ ! -f "compose.yaml" ]; then
