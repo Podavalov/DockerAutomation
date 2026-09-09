@@ -1,20 +1,17 @@
 @echo off
-REM ===================================================
-REM Скрипт для загрузки образов и запуска системы (Load)
-REM Использует PowerShell для выполнения load.ps1
-REM ===================================================
+
 
 echo ---------------------------------------------------
-echo Загрузка образов и запуск контейнеров...
+echo Loading images and starting containers...
 echo ---------------------------------------------------
 
-:: Установка политики исполнения
+
 PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
 
-:: Вызов PowerShell для запуска основного скрипта
-powershell.exe -File "C:\path\to\your\scripts\load.ps1"
+
+powershell.exe -File "Path to load.ps1"
 
 echo.
 echo ===================================================
-echo Загрузка и запуск завершены.
+echo Loading and startup are complete.
 pause

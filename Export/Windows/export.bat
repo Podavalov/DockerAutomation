@@ -1,20 +1,17 @@
 @echo off
-REM ===================================================
-REM Скрипт для экспорта образов Docker в tar-архив (Export)
-REM Использует PowerShell для выполнения export.ps1
-REM ===================================================
+
 
 echo ---------------------------------------------------
-echo Запуск Export Process...
+echo Start Export Process...
 echo ---------------------------------------------------
 
-:: Установка политики исполнения
+
 PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
 
-:: Вызов PowerShell для запуска основного скрипта
-powershell.exe -File "C:\path\to\your\scripts\export.ps1"
+
+powershell.exe -File "Path to export.ps1"
 
 echo.
 echo ===================================================
-echo Экспорт образов завершен.
+echo Export Process is done.
 pause

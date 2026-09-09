@@ -1,20 +1,17 @@
 @echo off
-REM ===================================================
-REM Скрипт для запуска работающих контейнеров (Run)
-REM Использует PowerShell для выполнения run.ps1
-REM ===================================================
+
 
 echo ---------------------------------------------------
-echo Запуск работающих контейнеров...
+echo Starting running containers...
 echo ---------------------------------------------------
 
 :: Установка политики исполнения
 PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
 
 :: Вызов PowerShell для запуска основного скрипта
-powershell.exe -File "C:\path\to\your\scripts\run.ps1"
+powershell.exe -File "Path to run.ps1"
 
 echo.
 echo ===================================================
-echo Запуск завершен.
+echo Launch complete.
 pause

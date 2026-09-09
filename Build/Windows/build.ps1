@@ -12,7 +12,7 @@ $version = docker --version 2>&1
 Write-Host "Docker version: $version"
 
 
-$DIR = "Путь к проекту"
+$DIR = "Path to project"
 
 if (-not (Test-Path -Path $DIR -PathType Container)) {
     Write-Host "ERROR: Directory $DIR does not exist!" -ForegroundColor Red

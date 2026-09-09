@@ -1,9 +1,9 @@
 
-$PROJECT_DIR = "Путь к \DockerAutomation\LoadAndRun\Windows"
+$PROJECT_DIR = "Path to \DockerAutomation\LoadAndRun\Windows"
 Set-Location $PROJECT_DIR -ErrorAction Stop
 
 
-Write-Host "📥 Загружаем образы ..." -ForegroundColor Yellow
+Write-Host "📥 Loading images..." -ForegroundColor Yellow
 
 
 docker pull redis:7
@@ -12,21 +12,21 @@ docker pull nginx:alpine
 
 docker load -i eye_of_reservoir.tar
 
-Write-Host "✅ Образы загружены." -ForegroundColor Green
+Write-Host "✅ Images uploaded." -ForegroundColor Green
 
 
 if (-not (Test-Path -Path ".env")) {
-    Write-Host "⚠️  .env не найден, создайте его." -ForegroundColor Yellow
+    Write-Host "⚠️  .env not found; please create it." -ForegroundColor Yellow
     exit 1
 }
 
 if (-not (Test-Path -Path "infra\nginx\nginx.conf")) {
-    Write-Host "⚠️  nginx.conf не найден." -ForegroundColor Yellow
+    Write-Host "⚠️ nginx.conf not found." -ForegroundColor Yellow
     exit 1
 }
 
-Write-Host "🚀 Запускаем контейнеры..." -ForegroundColor Cyan
+Write-Host "🚀 Launching containers..." -ForegroundColor Cyan
 docker compose up -d
 
-Write-Host "✅ Готово. Статус:" -ForegroundColor Green
+Write-Host "✅ Done. Status:" -ForegroundColor Green
 docker compose ps

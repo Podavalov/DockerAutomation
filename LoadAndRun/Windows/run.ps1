@@ -1,9 +1,9 @@
-$PROJECT_DIR = "Путь к \DockerAutomation\LoadAndRun\Windows"
+$PROJECT_DIR = "Path to \DockerAutomation\LoadAndRun\Windows"
 Set-Location $PROJECT_DIR -ErrorAction Stop
 
 
-Write-Host "🚀 Запускаем контейнеры..." -ForegroundColor Cyan
+Write-Host "🚀 Launching containers..." -ForegroundColor Cyan
 docker compose up -d
 
-Write-Host "✅ Готово. Статус:" -ForegroundColor Green
+Write-Host "✅ Done. Status:" -ForegroundColor Green
 docker compose ps

@@ -1,20 +1,15 @@
 @echo off
-REM ===================================================
-REM Скрипт для запуска процесса сборки (Build)
-REM Использует PowerShell для выполнения build.ps1
-REM ===================================================
 
 echo ---------------------------------------------------
-echo Запуск Build Process...
+echo Start Build Process...
 echo ---------------------------------------------------
 
-:: Установка политики исполнения, чтобы скрипты работали (может потребоваться подтверждение Y)
 PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
 
-:: Вызов PowerShell для запуска основного скрипта
-powershell.exe -File "C:\path\to\your\scripts\build.ps1"
+
+powershell.exe -File "Path to build.ps1"
 
 echo.
 echo ===================================================
-echo Процесс сборки завершен.
+echo Build Process is done.
 pause
