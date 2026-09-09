@@ -7,10 +7,8 @@ export default defineConfig({
         host: true,
         port: 5173,
         proxy: {
-            // Локальный запуск без nginx: проксируем API прямо на Django
             '/api': 'http://backend:8000',
         },
-        // HMR-websocket идёт через nginx на порту 80; локально (без nginx) — через сам Vite
         hmr: { clientPort: Number(process.env.VITE_HMR_CLIENT_PORT) || 80 },
     },
     test: {
