@@ -1,24 +1,20 @@
-# Requires: Docker CLI
 
-#$env:Path += ";C:\usr\local\bin;C:\opt\homebrew\bin" # Обновление путей для PowerShell
-
-# !!! ВНИМАНИЕ: Измените этот путь на ваш реальный Windows путь !!!
-$PROJECT_DIR = "C:\Users\glebpodavalov\Documents\GitHub\DockerAutomation\LoadAndRun\Linux"
+$PROJECT_DIR = "Путь к \DockerAutomation\LoadAndRun\Windows"
 Set-Location $PROJECT_DIR -ErrorAction Stop
 
 
 Write-Host "📥 Загружаем образы ..." -ForegroundColor Yellow
 
-# Pulling images
+
 docker pull redis:7
 docker pull nginx:alpine
 
-# Loading the tarball
+
 docker load -i eye_of_reservoir.tar
 
 Write-Host "✅ Образы загружены." -ForegroundColor Green
 
-# Проверка файлов (PowerShell Test-Path)
+
 if (-not (Test-Path -Path ".env")) {
     Write-Host "⚠️  .env не найден, создайте его." -ForegroundColor Yellow
     exit 1

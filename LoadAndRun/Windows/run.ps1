@@ -1,9 +1,4 @@
-# Requires: Docker CLI
-
-#$env:Path += ";C:\usr\local\bin;C:\opt\homebrew\bin" # Обновление путей для PowerShell
-
-# !!! ВНИМАНИЕ: Измените этот путь на ваш реальный Windows путь !!!
-$PROJECT_DIR = "C:\Users\glebpodavalov\Documents\GitHub\DockerAutomation\LoadAndRun\Linux"
+$PROJECT_DIR = "Путь к \DockerAutomation\LoadAndRun\Windows"
 Set-Location $PROJECT_DIR -ErrorAction Stop
 
 
