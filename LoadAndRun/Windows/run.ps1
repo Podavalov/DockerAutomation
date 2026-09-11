@@ -1,7 +1,9 @@
-$PROJECT_DIR = "Path to \DockerAutomation\LoadAndRun\Windows"
-Set-Location $PROJECT_DIR -ErrorAction Stop
+$ErrorActionPreference = 'Stop'
 
+$PROJECT_DIR = $PSScriptRoot
+Set-Location $PROJECT_DIR
 
+Write-Host "📂 Project dir: $PROJECT_DIR" -ForegroundColor DarkGray
 Write-Host "🚀 Launching containers..." -ForegroundColor Cyan
 docker compose up -d
 

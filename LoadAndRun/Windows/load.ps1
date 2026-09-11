@@ -1,19 +1,18 @@
+$ErrorActionPreference = 'Stop'
 
-$PROJECT_DIR = "Path to \DockerAutomation\LoadAndRun\Windows"
-Set-Location $PROJECT_DIR -ErrorAction Stop
+# Папка, где лежит сам скрипт
+$PROJECT_DIR = $PSScriptRoot
+Set-Location $PROJECT_DIR
 
-
+Write-Host "📂 Project dir: $PROJECT_DIR" -ForegroundColor DarkGray
 Write-Host "📥 Loading images..." -ForegroundColor Yellow
-
 
 docker pull redis:7
 docker pull nginx:alpine
 
-
 docker load -i eye_of_reservoir.tar
 
 Write-Host "✅ Images uploaded." -ForegroundColor Green
-
 
 if (-not (Test-Path -Path ".env")) {
     Write-Host "⚠️  .env not found; please create it." -ForegroundColor Yellow
@@ -21,7 +20,7 @@ if (-not (Test-Path -Path ".env")) {
 }
 
 if (-not (Test-Path -Path "infra\nginx\nginx.conf")) {
-    Write-Host "⚠️ nginx.conf not found." -ForegroundColor Yellow
+    Write-Host "⚠️  nginx.conf not found." -ForegroundColor Yellow
     exit 1
 }
 

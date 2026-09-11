@@ -1,17 +1,29 @@
 @echo off
+setlocal
 
+set "SCRIPT=%~dp0run.ps1"
+
+if not exist "%SCRIPT%" (
+    echo [ERROR] File not found: %SCRIPT%
+    pause
+    exit /b 1
+)
 
 echo ---------------------------------------------------
 echo Starting running containers...
 echo ---------------------------------------------------
 
-:: Установка политики исполнения
-PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
-
-:: Вызов PowerShell для запуска основного скрипта
-powershell.exe -File "Path to run.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
+set "RC=%ERRORLEVEL%"
 
 echo.
 echo ===================================================
-echo Launch complete.
+if "%RC%"=="0" (
+    echo Launch complete.
+) else (
+    echo Launch finished with errors. Exit code: %RC%
+)
 pause
+
+endlocal
+exit /b %RC%

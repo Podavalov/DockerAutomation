@@ -1,17 +1,29 @@
 @echo off
+setlocal
 
+set "SCRIPT=%~dp0export.ps1"
+
+if not exist "%SCRIPT%" (
+    echo [ERROR] File not found: %SCRIPT%
+    pause
+    exit /b 1
+)
 
 echo ---------------------------------------------------
 echo Start Export Process...
 echo ---------------------------------------------------
 
-
-PowerShell -ExecutionPolicy Bypass -Command "Set-StrictMode -Version Latest"
-
-
-powershell.exe -File "Path to export.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
+set "RC=%ERRORLEVEL%"
 
 echo.
 echo ===================================================
-echo Export Process is done.
+if "%RC%"=="0" (
+    echo Export Process is done.
+) else (
+    echo Export Process finished with errors. Exit code: %RC%
+)
 pause
+
+endlocal
+exit /b %RC%
