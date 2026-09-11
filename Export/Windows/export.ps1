@@ -6,19 +6,20 @@ Write-Host "Start Export" -ForegroundColor Cyan
 while ($true) {
     Write-Host ""
     Write-Host "Enter the path to the project directory (where docker-compose.yml is)." -ForegroundColor Yellow
-    $input = Read-Host "Project path"
+    $userInput = Read-Host "Project path"
 
-    if ([string]::IsNullOrWhiteSpace($input)) {
+    if ([string]::IsNullOrWhiteSpace($userInput)) {
         Write-Host "ERROR: project path cannot be empty." -ForegroundColor Red
         continue
     }
 
-    $input = $input.Trim('"').Trim("'")
+    # убираем кавычки и конечные слэши, чтобы корректно вытащить имя папки
+    $cleanInput = $userInput.Trim().Trim('"').Trim("'").TrimEnd('\', '/')
 
     try {
-        $PROJECT_DIR = (Resolve-Path -Path $input -ErrorAction Stop).Path
+        $PROJECT_DIR = (Resolve-Path -Path $cleanInput -ErrorAction Stop).Path
     } catch {
-        Write-Host "ERROR: Path '$input' does not exist or is not accessible." -ForegroundColor Red
+        Write-Host "ERROR: Path '$cleanInput' does not exist or is not accessible." -ForegroundColor Red
         continue
     }
 
@@ -33,33 +34,33 @@ while ($true) {
 Set-Location $PROJECT_DIR
 Write-Host "Using project directory: $PROJECT_DIR" -ForegroundColor Green
 
-# --- 2. Запрос пути для выходного .tar ---
-$defaultOut = Join-Path $PSScriptRoot 'eye_of_reservoir.tar'
+# --- 2. Имя архива = имя папки, которую ввёл пользователь ---
+$projectName = [System.IO.Path]::GetFileName($cleanInput)
+if ([string]::IsNullOrWhiteSpace($projectName)) {
+    # на случай, если ввели что-то вроде "C:\" — падаем на leaf от Resolve-Path
+    $projectName = Split-Path -Path $PROJECT_DIR -Leaf
+}
 
-while ($true) {
-    Write-Host ""
-    Write-Host "Enter the output .tar file path." -ForegroundColor Yellow
-    Write-Host "Press Enter to use the default: $defaultOut" -ForegroundColor DarkGray
-    $input = Read-Host "Output file"
+$defaultOut = Join-Path $PSScriptRoot "$projectName.tar"
 
-    if ([string]::IsNullOrWhiteSpace($input)) {
-        $OUTPUT_FILE = $defaultOut
-    } else {
-        $OUTPUT_FILE = $input.Trim('"').Trim("'")
-    }
+Write-Host ""
+Write-Host "Enter the output .tar file path." -ForegroundColor Yellow
+Write-Host "Press Enter to use the default: $defaultOut" -ForegroundColor DarkGray
+$outInput = Read-Host "Output file"
 
-    # Если задан относительный путь — считаем его от текущей папки (где скрипт)
+if ([string]::IsNullOrWhiteSpace($outInput)) {
+    $OUTPUT_FILE = $defaultOut
+} else {
+    $OUTPUT_FILE = $outInput.Trim('"').Trim("'")
     if (-not [System.IO.Path]::IsPathRooted($OUTPUT_FILE)) {
         $OUTPUT_FILE = Join-Path $PSScriptRoot $OUTPUT_FILE
     }
+}
 
-    $outDir = Split-Path -Parent $OUTPUT_FILE
-    if (-not (Test-Path -Path $outDir -PathType Container)) {
-        Write-Host "ERROR: Output directory '$outDir' does not exist." -ForegroundColor Red
-        continue
-    }
-
-    break
+$outDir = Split-Path -Parent $OUTPUT_FILE
+if (-not (Test-Path -Path $outDir -PathType Container)) {
+    Write-Host "ERROR: Output directory '$outDir' does not exist." -ForegroundColor Red
+    exit 1
 }
 
 Write-Host "Output file: $OUTPUT_FILE" -ForegroundColor Green
@@ -72,8 +73,6 @@ $images = docker compose images |
     Select-Object -Skip 1 |
     Where-Object { $_ -notmatch '<none>' } |
     ForEach-Object {
-        # строка вида: CONTAINER  REPOSITORY  TAG  IMAGE ID  SIZE
-        # делим по 2+ пробелам, чтобы не резать имена с пробелами
         $parts = ($_ -replace '\s{2,}', '|') -split '\|'
         if ($parts.Count -ge 3) {
             $repo = $parts[1].Trim()
