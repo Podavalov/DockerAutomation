@@ -3,12 +3,13 @@ set -e
 
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
-cd "/Users/gleb/Documents/GitHub/DockerAutomation/LoadAndRun/Linux" || exit 1
+# Папка, где лежит сам скрипт
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-
-echo "🚀 Запускаем контейнеры..."
+echo "📂 Project dir: $SCRIPT_DIR"
+echo "🚀 Launching containers..."
 docker compose up -d
 
-echo "✅ Готово. Статус:"
+echo "✅ Done. Status:"
 docker compose ps
-
