@@ -4,7 +4,7 @@ set -e
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
 PROJECT_DIR="$(pwd)"
-cd "/Users/glebpodavalov/Documents/GitHub/DockerAutomation/LoadAndRun/Linux" || exit 1
+cd "/Users/gleb/Documents/GitHub/DockerAutomation/LoadAndRun/Linux" || exit 1
 
 
 

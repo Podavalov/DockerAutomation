@@ -16,7 +16,7 @@ fi
 
 echo "Docker version: $(docker --version)"
 
-DIR="/Users/glebpodavalov/Documents/GitHub/Eye_of_reservoir"
+DIR="/Users/gleb/Documents/GitHub/Eye_of_reservoir_encrypted"
 
 if [ ! -d "$DIR" ]; then
     echo "ERROR: Directory $DIR does not exist!"
