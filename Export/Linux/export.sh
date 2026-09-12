@@ -83,7 +83,8 @@ if [ -f "$OUTPUT_FILE" ]; then
 fi
 
 # shellcheck disable=SC2086
-docker save -o "$OUTPUT_FILE" $IMAGES
+
+docker save --platform linux/amd64 -o "$OUTPUT_FILE" $IMAGES
 
 # --- 5. Итог ---
 echo ""

@@ -66,7 +66,7 @@ fi
 echo "Starting Docker Compose..."
 
 if docker compose version &> /dev/null; then
-    docker compose up --build
+    docker compose up --build 
 else
     echo "ERROR: Docker Compose is not available!"
     exit 1

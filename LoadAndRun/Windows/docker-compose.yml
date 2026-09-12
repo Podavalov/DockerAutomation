@@ -1,4 +1,5 @@
-name: eye_of_reservoir
+name: neftesoft
+
 services:
   db:
     image: postgres:18
@@ -16,6 +17,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7
@@ -24,9 +26,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   backend:
-    image: eye_of_reservoir_encrypted-backend:latest
+    image: neftesoft_for_presentation-backend:latest
     env_file: .env
     environment:
       RUN_MIGRATIONS: "1"
@@ -42,32 +45,39 @@ services:
       - "8000"
     ports:
       - "8001:8000"
+    restart: unless-stopped
 
   celery:
-    image: eye_of_reservoir_encrypted-celery:latest
+    image: neftesoft_for_presentation-celery:latest
     env_file: .env
+    command: celery -A eye_of_the_reservoir worker -l info
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+    restart: unless-stopped
 
   celery-beat:
-    image: eye_of_reservoir_encrypted-celery-beat:latest
+    image: neftesoft_for_presentation-celery-beat:latest
     env_file: .env
+    command: celery -A eye_of_the_reservoir beat -l info
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+    restart: unless-stopped
 
   frontend:
-    image: eye_of_reservoir_encrypted-frontend:latest
+    image: neftesoft_for_presentation-frontend:latest
     env_file: .env
+    command: npm run dev -- --host 0.0.0.0
     expose:
       - "5173"
     ports:
       - "5173:5173"
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
@@ -80,6 +90,7 @@ services:
     depends_on:
       - backend
       - frontend
+    restart: unless-stopped
 
 volumes:
   static_volume:

@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql     
+      - postgres_data:/var/lib/postgresql
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5433:5432"
@@ -25,7 +25,11 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      platforms:
+        - linux/amd64
+        - linux/arm64
     env_file: .env
     environment:
       RUN_MIGRATIONS: "1"
@@ -43,7 +47,11 @@ services:
       - "8001:8000"
 
   celery:
-    build: ./backend
+    build:
+      context: ./backend
+      platforms:
+        - linux/amd64
+        - linux/arm64
     env_file: .env
     depends_on:
       db:
@@ -53,7 +61,11 @@ services:
     command: celery -A eye_of_the_reservoir worker -l info
 
   celery-beat:
-    build: ./backend
+    build:
+      context: ./backend
+      platforms:
+        - linux/amd64
+        - linux/arm64
     env_file: .env
     depends_on:
       db:
@@ -66,6 +78,9 @@ services:
     build:
       context: ./frontend
       network: host
+      platforms:
+        - linux/amd64
+        - linux/arm64
     env_file: .env
     volumes:
       - ./frontend:/app
