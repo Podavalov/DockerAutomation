@@ -30,8 +30,6 @@ TAR_FILE="${TAR_FILES[0]}"
 echo "📦 Using archive: $(basename "$TAR_FILE")"
 
 echo "📥 Loading images..."
-docker pull redis:7
-docker pull nginx:alpine
 
 docker load -i "$TAR_FILE"
 

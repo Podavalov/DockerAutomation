@@ -18,13 +18,10 @@ $tarFile = $tarFiles[0].FullName
 if ($tarFiles.Count -gt 1) {
     Write-Host "⚠️  Multiple .tar files found, using the first one:" -ForegroundColor Yellow
     $tarFiles | ForEach-Object { Write-Host "   - $($_.Name)" -ForegroundColor DarkGray }
-} 
+}
 Write-Host "📦 Using archive: $($tarFiles[0].Name)" -ForegroundColor Cyan
 
 Write-Host "📥 Loading images..." -ForegroundColor Yellow
-
-docker pull redis:7
-docker pull nginx:alpine
 
 docker load -i $tarFile
 if ($LASTEXITCODE -ne 0) {
@@ -45,7 +42,7 @@ if (-not (Test-Path -Path "infra\nginx\nginx.conf")) {
 }
 
 Write-Host "🚀 Launching containers..." -ForegroundColor Cyan
-docker compose up -d
+docker compose up -d --pull never
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ 'docker compose up' failed with exit code $LASTEXITCODE" -ForegroundColor Red
     exit $LASTEXITCODE

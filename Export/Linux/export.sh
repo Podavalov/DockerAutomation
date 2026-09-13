@@ -62,19 +62,34 @@ fi
 
 echo "Output file: $OUTPUT_FILE"
 
-# --- 3. Собираем список образов ---
+# --- 3. Собираем список образов из compose-файла ---
 echo ""
-echo "Get all images from docker compose images..."
+echo "Collecting images from docker-compose.yml..."
 
-IMAGES="$(docker compose images | awk 'NR>1 {print $2":"$3}' | grep -v '<none>' | sort -u)"
+IMAGES="$(docker compose config --images | sort -u)"
 
 if [ -z "$IMAGES" ]; then
-    echo "❌ No images with tags. Build them first: docker compose build"
+    echo "❌ No images found in compose file."
     exit 1
 fi
 
 echo "📦 Saving images into a single archive:"
 echo "$IMAGES" | sed 's/^/   /'
+
+# --- 3b. Проверяем, что все образы есть локально ---
+MISSING=""
+for img in $IMAGES; do
+    if ! docker image inspect "$img" >/dev/null 2>&1; then
+        MISSING="$MISSING $img"
+    fi
+done
+
+if [ -n "$MISSING" ]; then
+    echo "❌ These images are missing locally:"
+    for img in $MISSING; do echo "   - $img"; done
+    echo "   Run 'docker compose build' and/or 'docker compose pull' first."
+    exit 1
+fi
 
 # --- 4. Сохраняем ---
 if [ -f "$OUTPUT_FILE" ]; then
@@ -83,10 +98,4 @@ if [ -f "$OUTPUT_FILE" ]; then
 fi
 
 # shellcheck disable=SC2086
-
 docker save --platform linux/amd64 -o "$OUTPUT_FILE" $IMAGES
-
-# --- 5. Итог ---
-echo ""
-echo "✅ Done: $OUTPUT_FILE"
-echo "   Size: $(du -h "$OUTPUT_FILE" | cut -f1)"
