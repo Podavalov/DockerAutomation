@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set "SCRIPT=%~dp0load.ps1"
+set "SCRIPT=%~dp0import.ps1"
 
 if not exist "%SCRIPT%" (
     echo [ERROR] File not found: %SCRIPT%
